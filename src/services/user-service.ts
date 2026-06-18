@@ -98,3 +98,12 @@ export async function getCurrentUser(token: string | undefined) {
     created_at: result.createdAt,
   };
 }
+
+export async function logoutUser(token: string | undefined) {
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  // Delete session from DB directly (idempotent)
+  await db.delete(sessions).where(eq(sessions.token, token));
+}

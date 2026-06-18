@@ -1,7 +1,14 @@
 import { Elysia } from "elysia";
-import { registerUser, loginUser, getCurrentUser } from "../services/user-service";
+import { registerUser, loginUser, getCurrentUser, logoutUser } from "../services/user-service";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
+  .derive(({ headers }) => {
+    let token = headers["authorization"];
+    if (token && token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
+    return { token };
+  })
   .post("/users", async ({ body, set }) => {
     try {
       await registerUser(body as any);
@@ -23,16 +30,22 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       return { data: "Email atau password salah" };
     }
   })
-  .post("/users/current-user", async ({ headers, set }) => {
+  .post("/users/current-user", async ({ token, set }) => {
     try {
-      let token = headers["authorization"];
-      if (token && token.startsWith("Bearer ")) {
-        token = token.slice(7);
-      }
       const user = await getCurrentUser(token);
       return { data: user };
     } catch (error) {
       console.log("CURRENT USER ROUTE ERROR:", error);
+      set.status = 401;
+      return { data: "Unauthorized" };
+    }
+  })
+  .delete("/users/logout", async ({ token, set }) => {
+    try {
+      await logoutUser(token);
+      return { data: "OK" };
+    } catch (error) {
+      console.log("LOGOUT ROUTE ERROR:", error);
       set.status = 401;
       return { data: "Unauthorized" };
     }
