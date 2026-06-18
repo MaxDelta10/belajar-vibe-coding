@@ -69,3 +69,32 @@ export async function loginUser(payload: LoginUserPayload) {
 
   return token;
 }
+
+export async function getCurrentUser(token: string | undefined) {
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const [result] = await db
+    .select({
+      token: sessions.token,
+      name: users.name,
+      email: users.email,
+      createdAt: users.createdAt,
+    })
+    .from(sessions)
+    .innerJoin(users, eq(sessions.userId, users.id))
+    .where(eq(sessions.token, token))
+    .limit(1);
+
+  if (!result) {
+    throw new Error("Unauthorized");
+  }
+
+  return {
+    token: result.token,
+    name: result.name,
+    email: result.email,
+    created_at: result.createdAt,
+  };
+}
