@@ -104,17 +104,6 @@ export async function logoutUser(token: string | undefined) {
     throw new Error("Unauthorized");
   }
 
-  // Verify that the session actually exists
-  const [session] = await db
-    .select()
-    .from(sessions)
-    .where(eq(sessions.token, token))
-    .limit(1);
-
-  if (!session) {
-    throw new Error("Unauthorized");
-  }
-
-  // Delete session from DB
+  // Delete session from DB directly (idempotent)
   await db.delete(sessions).where(eq(sessions.token, token));
 }
