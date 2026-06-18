@@ -24,7 +24,15 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       name: t.String({ maxLength: 100 }),
       email: t.String({ format: "email", maxLength: 255 }),
       password: t.String({ minLength: 6, maxLength: 255 })
-    })
+    }),
+    response: {
+      200: t.Object({
+        data: t.String()
+      }),
+      400: t.Object({
+        data: t.String()
+      })
+    }
   })
   .post("/users/login", async ({ body, set }) => {
     try {
@@ -34,6 +42,19 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       console.log("LOGIN ROUTE ERROR:", error);
       set.status = 401; // Unauthorized
       return { data: "Email atau password salah" };
+    }
+  }, {
+    body: t.Object({
+      email: t.String({ format: "email", maxLength: 255 }),
+      password: t.String({ minLength: 6, maxLength: 255 })
+    }),
+    response: {
+      200: t.Object({
+        data: t.String()
+      }),
+      401: t.Object({
+        data: t.String()
+      })
     }
   })
   .post("/users/current-user", async ({ token, set }) => {
@@ -45,6 +66,23 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       set.status = 401;
       return { data: "Unauthorized" };
     }
+  }, {
+    headers: t.Object({
+      authorization: t.Optional(t.String({ description: "Bearer <token>" }))
+    }),
+    response: {
+      200: t.Object({
+        data: t.Object({
+          token: t.String(),
+          name: t.String(),
+          email: t.String(),
+          created_at: t.Any()
+        })
+      }),
+      401: t.Object({
+        data: t.String()
+      })
+    }
   })
   .delete("/users/logout", async ({ token, set }) => {
     try {
@@ -54,5 +92,17 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       console.log("LOGOUT ROUTE ERROR:", error);
       set.status = 401;
       return { data: "Unauthorized" };
+    }
+  }, {
+    headers: t.Object({
+      authorization: t.Optional(t.String({ description: "Bearer <token>" }))
+    }),
+    response: {
+      200: t.Object({
+        data: t.String()
+      }),
+      401: t.Object({
+        data: t.String()
+      })
     }
   });

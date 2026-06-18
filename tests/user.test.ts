@@ -196,9 +196,7 @@ describe("User API Tests", () => {
           }),
         })
       );
-      expect(response.status).toBe(401);
-      const json = await response.json();
-      expect(json).toEqual({ data: "Email atau password salah" });
+      expect(response.status).toBe(422);
     });
   });
 
