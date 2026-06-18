@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { registerUser, loginUser, getCurrentUser } from "../services/user-service";
+import { registerUser, loginUser, getCurrentUser, logoutUser } from "../services/user-service";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
   .post("/users", async ({ body, set }) => {
@@ -33,6 +33,20 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       return { data: user };
     } catch (error) {
       console.log("CURRENT USER ROUTE ERROR:", error);
+      set.status = 401;
+      return { data: "Unauthorized" };
+    }
+  })
+  .delete("/users/logout", async ({ headers, set }) => {
+    try {
+      let token = headers["authorization"];
+      if (token && token.startsWith("Bearer ")) {
+        token = token.slice(7);
+      }
+      await logoutUser(token);
+      return { data: "OK" };
+    } catch (error) {
+      console.log("LOGOUT ROUTE ERROR:", error);
       set.status = 401;
       return { data: "Unauthorized" };
     }

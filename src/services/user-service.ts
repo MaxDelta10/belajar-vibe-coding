@@ -98,3 +98,23 @@ export async function getCurrentUser(token: string | undefined) {
     created_at: result.createdAt,
   };
 }
+
+export async function logoutUser(token: string | undefined) {
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  // Verify that the session actually exists
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.token, token))
+    .limit(1);
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  // Delete session from DB
+  await db.delete(sessions).where(eq(sessions.token, token));
+}
