@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { registerUser, loginUser } from "../services/user-service";
+import { registerUser, loginUser, getCurrentUser } from "../services/user-service";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
   .post("/users", async ({ body, set }) => {
@@ -21,5 +21,19 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       console.log("LOGIN ROUTE ERROR:", error);
       set.status = 401; // Unauthorized
       return { data: "Email atau password salah" };
+    }
+  })
+  .post("/users/current-user", async ({ headers, set }) => {
+    try {
+      let token = headers["authorization"];
+      if (token && token.startsWith("Bearer ")) {
+        token = token.slice(7);
+      }
+      const user = await getCurrentUser(token);
+      return { data: user };
+    } catch (error) {
+      console.log("CURRENT USER ROUTE ERROR:", error);
+      set.status = 401;
+      return { data: "Unauthorized" };
     }
   });
