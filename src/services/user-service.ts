@@ -8,6 +8,14 @@ export interface RegisterUserPayload {
   password?: string;
 }
 
+/**
+ * Mendaftarkan pengguna baru ke dalam sistem.
+ * Fungsi ini akan melakukan hashing pada password menggunakan bcrypt (bawaan Bun) 
+ * dan menyimpan data nama, email, serta password yang telah di-hash ke dalam tabel `users`.
+ * 
+ * @param payload Data registrasi yang berisi name, email, dan password.
+ * @throws Error jika terdapat field yang kosong.
+ */
 export async function registerUser(payload: RegisterUserPayload) {
   const { name, email, password } = payload;
 
@@ -34,6 +42,16 @@ export interface LoginUserPayload {
   password?: string;
 }
 
+/**
+ * Memproses autentikasi pengguna untuk login.
+ * Fungsi ini akan mencari pengguna berdasarkan email di database, 
+ * memverifikasi kecocokan password menggunakan bcrypt, dan jika berhasil, 
+ * akan membuat token sesi unik (UUID) lalu menyimpannya ke tabel `sessions`.
+ * 
+ * @param payload Data login yang berisi email dan password.
+ * @returns Token sesi (UUID) sebagai string.
+ * @throws Error jika email/password kosong, email tidak ditemukan, atau password salah.
+ */
 export async function loginUser(payload: LoginUserPayload) {
   const { email, password } = payload;
 
@@ -70,6 +88,15 @@ export async function loginUser(payload: LoginUserPayload) {
   return token;
 }
 
+/**
+ * Mengambil data profil pengguna yang sedang login (Current User) berdasarkan token sesi.
+ * Fungsi ini akan melakukan query join antara tabel `sessions` dan `users` 
+ * untuk mengembalikan informasi detail pengguna jika token valid.
+ * 
+ * @param token Token sesi otorisasi milik pengguna.
+ * @returns Objek profil pengguna yang mencakup token, nama, email, dan waktu registrasi.
+ * @throws Error ("Unauthorized") jika token tidak dikirim atau sesi tidak ditemukan.
+ */
 export async function getCurrentUser(token: string | undefined) {
   if (!token) {
     throw new Error("Unauthorized");
@@ -99,6 +126,14 @@ export async function getCurrentUser(token: string | undefined) {
   };
 }
 
+/**
+ * Menghapus sesi pengguna dari sistem (Logout).
+ * Fungsi ini bersifat idempotent, artinya akan mengeksekusi penghapusan baris 
+ * data secara langsung dari tabel `sessions` berdasarkan token yang diberikan.
+ * 
+ * @param token Token sesi yang ingin dihapus/dibatalkan.
+ * @throws Error ("Unauthorized") jika parameter token kosong.
+ */
 export async function logoutUser(token: string | undefined) {
   if (!token) {
     throw new Error("Unauthorized");
