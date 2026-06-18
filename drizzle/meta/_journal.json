@@ -15,6 +15,20 @@
       "when": 1781800893779,
       "tag": "0001_curious_ser_duncan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781801465806,
+      "tag": "0002_outgoing_puma",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1781801496777,
+      "tag": "0003_fast_diamondback",
+      "breakpoints": true
     }
   ]
 }
