@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { registerUser, loginUser, getCurrentUser, logoutUser } from "../services/user-service";
 
 export const usersRoute = new Elysia({ prefix: "/api" })
@@ -19,6 +19,12 @@ export const usersRoute = new Elysia({ prefix: "/api" })
       set.status = 400;
       return { data: "Error" };
     }
+  }, {
+    body: t.Object({
+      name: t.String({ maxLength: 100 }),
+      email: t.String({ format: "email", maxLength: 255 }),
+      password: t.String({ minLength: 6, maxLength: 255 })
+    })
   })
   .post("/users/login", async ({ body, set }) => {
     try {
